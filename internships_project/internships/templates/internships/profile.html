@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Профиль пользователя</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 40px;
+            background-color: #f9f9f9;
+        }
+        .profile-container {
+            max-width: 600px;
+            margin: auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .profile-title {
+            text-align: center;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        .profile-info {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .back-link {
+            display: block;
+            margin-top: 30px;
+            text-align: center;
+            text-decoration: none;
+            color: #4CAF50;
+            font-size: 16px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="profile-container">
+    <div class="profile-title">Профиль пользователя</div>
+    <div class="profile-info">
+        <strong>Имя:</strong> {{ request.user.first_name }}<br>
+        <strong>Фамилия:</strong> {{ request.user.last_name }}<br>
+        <strong>Email:</strong> {{ request.user.email }}<br>
+        <strong>Имя пользователя:</strong> {{ request.user.username }}
+    </div>
+    <a href="{% url 'create_internship' %}" class="back-link">← Вернуться к стажировкам</a>
+</div>
+
+</body>
+</html>
