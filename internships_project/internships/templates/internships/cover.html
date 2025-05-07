@@ -1,0 +1,103 @@
+{# blocks/cover.html #}
+<div class="cover-block py-12 px-6 bg-gray-100 rounded-lg">
+    <h1 class="text-4xl font-bold mb-4">{{ block.content.title|default:"Заголовок обложки" }}</h1>
+    <p class="text-xl mb-6">{{ block.content.description|default:"Описание стажировки" }}</p>
+    {% if block.content.image %}
+    <img src="{{ block.content.image }}" alt="Cover image" class="w-full h-64 object-cover rounded-lg">
+    {% endif %}
+</div>
+
+{# blocks/about.html #}
+<div class="about-block py-8 px-6 bg-white rounded-lg">
+    <h2 class="text-2xl font-bold mb-4">{{ block.content.title|default:"О проекте" }}</h2>
+    <div class="prose max-w-none">
+        {{ block.content.content|default:"Описание проекта стажировки" }}
+    </div>
+</div>
+
+{# blocks/heading.html #}
+<div class="heading-block py-4">
+    <h2 class="text-2xl font-bold">{{ block.content.text|default:"Заголовок раздела" }}</h2>
+    {% if block.content.subtitle %}
+    <p class="text-lg text-gray-600">{{ block.content.subtitle }}</p>
+    {% endif %}
+</div>
+
+{# blocks/text.html #}
+<div class="text-block py-4">
+    <div class="prose max-w-none">
+        {{ block.content.text|default:"Текстовый блок содержимого" }}
+    </div>
+</div>
+
+{# blocks/image.html #}
+<div class="image-block py-4">
+    {% if block.content.image %}
+    <img src="{{ block.content.image }}" alt="{{ block.content.alt|default:'Image' }}"
+         class="w-full rounded-lg object-cover">
+    {% else %}
+    <div class="w-full h-48 bg-gray-200 rounded-lg flex items-center justify-center">
+        <p class="text-gray-500">Изображение</p>
+    </div>
+    {% endif %}
+    {% if block.content.caption %}
+    <p class="text-sm text-gray-600 mt-2">{{ block.content.caption }}</p>
+    {% endif %}
+</div>
+
+{# blocks/form.html #}
+<div class="form-block py-6 px-4 bg-gray-50 rounded-lg">
+    <h3 class="text-xl font-bold mb-4">{{ block.content.title|default:"Форма" }}</h3>
+    <form action="#" method="post" class="space-y-4">
+        {% csrf_token %}
+        {% for field in block.content.fields|default:'' %}
+        <div class="form-group">
+            <label class="block text-sm font-medium mb-1">{{ field.label }}</label>
+            {% if field.type == 'textarea' %}
+            <textarea name="{{ field.name }}" class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      placeholder="{{ field.placeholder|default:'' }}" rows="4"></textarea>
+            {% else %}
+            <input type="{{ field.type|default:'text' }}" name="{{ field.name }}"
+                   class="w-full px-3 py-2 border border-gray-300 rounded-md"
+                   placeholder="{{ field.placeholder|default:'' }}">
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="form-group">
+            <label class="block text-sm font-medium mb-1">Имя</label>
+            <input type="text" name="name" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+        </div>
+        <div class="form-group">
+            <label class="block text-sm font-medium mb-1">Email</label>
+            <input type="email" name="email" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+        </div>
+        {% endfor %}
+        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+            {{ block.content.button_text|default:"Отправить" }}
+        </button>
+    </form>
+</div>
+
+{# blocks/button.html #}
+<div class="button-block py-4 text-center">
+    <a href="{{ block.content.url|default:'#' }}"
+       class="inline-block px-6 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+        {{ block.content.text|default:"Кнопка" }}
+    </a>
+</div>
+
+{# blocks/video.html #}
+<div class="video-block py-4">
+    {% if block.content.embed_code %}
+    <div class="aspect-w-16 aspect-h-9">
+        {{ block.content.embed_code|safe }}
+    </div>
+    {% else %}
+    <div class="w-full h-64 bg-gray-200 rounded-lg flex items-center justify-center">
+        <p class="text-gray-500">Видео</p>
+    </div>
+    {% endif %}
+    {% if block.content.caption %}
+    <p class="text-sm text-gray-600 mt-2">{{ block.content.caption }}</p>
+    {% endif %}
+</div>

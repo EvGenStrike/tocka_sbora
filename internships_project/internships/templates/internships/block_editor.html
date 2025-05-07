@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Редактор блоков{% endblock %}
+
+{% block extra_css %}
+<style>
+    .block-menu {
+        border-right: 1px solid #e2e8f0;
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+    }
+    
+    .editor-canvas {
+        height: calc(100vh - 2rem);
+        overflow-y: auto;
+    }
+    
+    .block-option {
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .block-option:hover {
+        background-color: #f7fafc;
+    }
+    
+    .block-preview {
+        border: 1px dashed transparent;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        transition: all 0.2s;
+    }
+    
+    .block-preview:hover {
+        border-color: #4299e1;
+    }
+    
+    .block-active {
+        border-color: #4299e1;
+        background-color: #ebf8ff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex h-screen">
+    <!-- Блок меню -->
+    <div class="block-menu w-64 bg-white p-4">
+        <div class="relative mb-4">
+            <input type="text" placeholder="Выбрать блоки" 
+                   class="w-full px-4 py-2 border border-gray-300 rounded-md">
+            <span class="absolute right-3 top-2 text-gray-400">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                </svg>
+            </span>
+        </div>
+        
+        <!-- Опции блоков -->
+        {% for block_type in block_types %}
+        <div class="block-option p-2 rounded-md mb-2" data-type="{{ block_type.type }}">
+            <div class="font-medium">{{ block_type.name }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Редактор -->
+    <div class="flex-1 bg-gray-100">
+        <div class="editor-canvas p-8 max-w-4xl mx-auto bg-white shadow-md">
+            <!-- Блоки стажировки -->
+            {% for block in blocks %}
+            <div class="block-preview" data-block-id="{{ block.id }}" data-block-type="{{ block.type }}">
+                {% include "internships/blocks/"|add:block.type|add:".html" with block=block %}
+            </div>
+            {% empty %}
+            <div class="text-center py-12 text-gray-500">
+                <p>Выберите блок из меню слева, чтобы начать создание стажировки</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Настройки блока -->
+    <div id="block-settings" class="w-64 bg-white p-4 hidden">
+        <h3 class="font-bold mb-4">Настройки блока</h3>
+        <div id="settings-content">
+            <!-- Содержимое будет загружено динамически -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Функция для создания нового блока
+    function createBlock(blockType) {
+        fetch(`/api/internship/{{ object.id }}/block/create/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                type: blockType
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Перезагрузить страницу для отображения нового блока
+                location.reload();
+            }
+        });
+    }
+    
+    // Функция для обновления блока
+    function updateBlock(blockId, content) {
+        fetch(`/api/block/${blockId}/update/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                content: content
+            })
+        })
+        .then(response => response.json());
+    }
+    
+    // Функция для удаления блока
+    function deleteBlock(blockId) {
+        if (confirm('Вы уверены, что хотите удалить этот блок?')) {
+            fetch(`/api/block/${blockId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Перезагрузить страницу
+                    location.reload();
+                }
+            });
+        }
+    }
+    
+    // Получение CSRF токена для POST запросов
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    // Инициализация страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        // Добавление блоков из меню
+        const blockOptions = document.querySelectorAll('.block-option');
+        blockOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const blockType = this.dataset.type;
+                createBlock(blockType);
+            });
+        });
+        
+        // Выбор блока для редактирования
+        const blockPreviews = document.querySelectorAll('.block-preview');
+        blockPreviews.forEach(preview => {
+            preview.addEventListener('click', function() {
+                // Убрать активный класс у всех блоков
+                blockPreviews.forEach(p => p.classList.remove('block-active'));
+                
+                // Добавить активный класс выбранному блоку
+                this.classList.add('block-active');
+                
+                // Показать панель настроек
+                document.getElementById('block-settings').classList.remove('hidden');
+                
+                // Загрузить настройки для блока
+                const blockId = this.dataset.blockId;
+                const blockType = this.dataset.blockType;
+                
+                // Здесь должен быть код для загрузки настроек блока
+                // В реальном приложении это будет AJAX-запрос для получения формы редактирования
+                document.getElementById('settings-content').innerHTML = `
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Заголовок</label>
+                        <input type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium mb-1">Содержимое</label>
+                        <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md" rows="5"></textarea>
+                    </div>
+                    <div class="flex justify-between">
+                        <button class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            Сохранить
+                        </button>
+                        <button class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                onclick="deleteBlock('${blockId}')">
+                            Удалить
+                        </button>
+                    </div>
+                `;
+            });
+        });
+    });
+</script>
+{% endblock %}

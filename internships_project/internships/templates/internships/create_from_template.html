@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание стажировки из шаблона</title>
+    <a href="{% url 'template_list' %}" class="back-button">Назад</a>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .template-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .template-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border-color: #4a90e2;
+        }
+
+        .template-card.selected {
+            background-color: #e6f2ff;
+            border-color: #4a90e2;
+        }
+
+        .template-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .template-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+            line-height: 1.4;
+        }
+
+        .template-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .form-section {
+            margin-top: 30px;
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #4a90e2;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #3a7bc8;
+        }
+
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e5e5;
+        }
+
+        .info-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #4a90e2;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Создание стажировки из шаблона</h1>
+
+        <div class="info-box">
+            Выберите шаблон стажировки для быстрого создания программы. Вы сможете изменить все детали на следующем этапе.
+        </div>
+
+        <div class="templates-grid">
+            <div class="template-card" onclick="selectTemplate(this, 'software-dev')">
+                <div class="template-title">Разработка программного обеспечения</div>
+                <div class="template-description">Стажировка для начинающих разработчиков с фокусом на веб-разработку, мобильные приложения и общую архитектуру ПО.</div>
+                <div class="template-details">
+                    <span>Длительность: 3 месяца</span>
+                    <span>5 проектов</span>
+                </div>
+            </div>
+
+            <div class="template-card" onclick="selectTemplate(this, 'data-science')">
+                <div class="template-title">Наука о данных</div>
+                <div class="template-description">Практика анализа данных, машинного обучения и работы с большими наборами данных для бизнес-аналитики.</div>
+                <div class="template-details">
+                    <span>Длительность: 4 месяца</span>
+                    <span>4 проекта</span>
+                </div>
+            </div>
+
+            <div class="template-card" onclick="selectTemplate(this, 'ux-design')">
+                <div class="template-title">UX/UI Дизайн</div>
+                <div class="template-description">Создание пользовательских интерфейсов, проведение исследований пользователей и разработка прототипов.</div>
+                <div class="template-details">
+                    <span>Длительность: 3 месяца</span>
+                    <span>6 проектов</span>
+                </div>
+            </div>
+
+            <div class="template-card" onclick="selectTemplate(this, 'marketing')">
+                <div class="template-title">Цифровой маркетинг</div>
+                <div class="template-description">Работа с SEO, SMM, контент-маркетингом, email-маркетингом и аналитикой.</div>
+                <div class="template-details">
+                    <span>Длительность: 2 месяца</span>
+                    <span>5 проектов</span>
+                </div>
+            </div>
+
+            <div class="template-card" onclick="selectTemplate(this, 'product-management')">
+                <div class="template-title">Управление продуктом</div>
+                <div class="template-description">Разработка стратегии продукта, приоритизация функций, работа с командой разработки.</div>
+                <div class="template-details">
+                    <span>Длительность: 3 месяца</span>
+                    <span>3 проекта</span>
+                </div>
+            </div>
+
+            <div class="template-card" onclick="selectTemplate(this, 'hr')">
+                <div class="template-title">HR и рекрутинг</div>
+                <div class="template-description">Поиск и отбор кандидатов, проведение собеседований, адаптация сотрудников.</div>
+                <div class="template-details">
+                    <span>Длительность: 2 месяца</span>
+                    <span>4 проекта</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section" id="form-details">
+            <h2>Настройка стажировки</h2>
+
+            <div class="form-group">
+                <label for="internship-title">Название стажировки</label>
+                <input type="text" id="internship-title" placeholder="Введите название стажировки">
+            </div>
+
+            <div class="form-group">
+                <label for="internship-description">Описание</label>
+                <textarea id="internship-description" placeholder="Подробное описание программы стажировки"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="internship-duration">Длительность (месяцы)</label>
+                <input type="number" id="internship-duration" min="1" max="12">
+            </div>
+
+            <div class="form-group">
+                <label for="internship-positions">Количество позиций</label>
+                <input type="number" id="internship-positions" min="1" max="100">
+            </div>
+
+            <div class="form-group">
+                <label for="internship-salary">Оплата (руб/месяц)</label>
+                <input type="number" id="internship-salary" placeholder="0 для неоплачиваемой стажировки">
+            </div>
+
+            <div class="form-group">
+                <label for="internship-location">Формат работы</label>
+                <select id="internship-location">
+                    <option value="remote">Удаленно</option>
+                    <option value="onsite">В офисе</option>
+                    <option value="hybrid">Гибридный</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="internship-requirements">Требования к кандидату</label>
+                <textarea id="internship-requirements" placeholder="Перечислите необходимые навыки и требования"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="internship-benefits">Бонусы и преимущества</label>
+                <textarea id="internship-benefits" placeholder="Что получит стажер помимо опыта"></textarea>
+            </div>
+
+            <div class="buttons">
+                <button class="btn btn-secondary" onclick="backToTemplates()">Назад к шаблонам</button>
+                <button class="btn btn-primary" onclick="createInternship()">Создать стажировку</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function selectTemplate(element, templateId) {
+            // Удалить класс selected у всех карточек
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+
+            // Добавить класс selected к выбранной карточке
+            element.classList.add('selected');
+
+            // Заполнить форму данными из шаблона
+            const templateData = getTemplateData(templateId);
+            document.getElementById('internship-title').value = templateData.title;
+            document.getElementById('internship-description').value = templateData.description;
+            document.getElementById('internship-duration').value = templateData.duration;
+            document.getElementById('internship-positions').value = templateData.positions;
+            document.getElementById('internship-salary').value = templateData.salary;
+            document.getElementById('internship-location').value = templateData.location;
+            document.getElementById('internship-requirements').value = templateData.requirements;
+            document.getElementById('internship-benefits').value = templateData.benefits;
+
+            // Показать форму
+            document.getElementById('form-details').classList.add('active');
+
+            // Прокрутить к форме
+            document.getElementById('form-details').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function backToTemplates() {
+            document.getElementById('form-details').classList.remove('active');
+            document.querySelectorAll('.template-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+        }
+
+        function createInternship() {
+            // Здесь будет логика отправки формы на сервер
+            alert('Стажировка успешно создана!');
+            // Здесь можно добавить перенаправление на страницу со списком стажировок
+        }
+
+        function getTemplateData(templateId) {
+            const templates = {
+                'software-dev': {
+                    title: 'Стажировка по разработке программного обеспечения',
+                    description: 'Программа для начинающих разработчиков, желающих получить опыт работы в команде над реальными проектами. Включает обучение современным технологиям веб-разработки, программирования мобильных приложений и базовых принципов проектирования ПО.',
+                    duration: 3,
+                    positions: 5,
+                    salary: 30000,
+                    location: 'hybrid',
+                    requirements: '- Базовые знания одного из языков программирования (JavaScript, Python, Java)\n- Понимание основ HTML, CSS\n- Желание учиться и развиваться в сфере разработки ПО\n- Студенты последних курсов технических специальностей или выпускники',
+                    benefits: '- Возможность трудоустройства после стажировки\n- Индивидуальное менторство\n- Гибкий график\n- Современный офис\n- Участие в корпоративных мероприятиях'
+                },
+                'data-science': {
+                    title: 'Стажировка по науке о данных',
+                    description: 'Интенсивная программа стажировки для аналитиков и начинающих специалистов по данным. Вы будете работать с реальными наборами данных, решать бизнес-задачи с помощью алгоритмов машинного обучения и статистического анализа.',
+                    duration: 4,
+                    positions: 3,
+                    salary: 35000,
+                    location: 'remote',
+                    requirements: '- Знание Python и библиотек для анализа данных (pandas, NumPy)\n- Базовое понимание статистики\n- Опыт работы с SQL\n- Математическое или техническое образование (студенты старших курсов или выпускники)',
+                    benefits: '- Доступ к онлайн-курсам по DS и ML\n- Работа с опытными специалистами по данным\n- Возможность присоединиться к команде после стажировки\n- Участие в реальных проектах компании'
+                },
+                'ux-design': {
+                    title: 'Стажировка по UX/UI дизайну',
+                    description: 'Программа для начинающих дизайнеров интерфейсов. Вы научитесь проводить исследования пользователей, создавать прототипы и дизайн-системы, работать в команде с разработчиками и менеджерами продукта.',
+                    duration: 3,
+                    positions: 4,
+                    salary: 25000,
+                    location: 'onsite',
+                    requirements: '- Базовые навыки работы в Figma, Sketch или Adobe XD\n- Понимание принципов UI/UX дизайна\n- Наличие портфолио (даже учебные проекты)\n- Студенты или выпускники направлений дизайна или смежных специальностей',
+                    benefits: '- Расширение портфолио реальными проектами\n- Обратная связь от опытных дизайнеров\n- Оплата проезда\n- Комфортный офис в центре города\n- Гибкий график'
+                },
+                'marketing': {
+                    title: 'Стажировка по цифровому маркетингу',
+                    description: 'Практическая программа по всем аспектам цифрового маркетинга. Вы будете участвовать в разработке и реализации маркетинговых кампаний, аналитике результатов и оптимизации стратегий.',
+                    duration: 2,
+                    positions: 6,
+                    salary: 20000,
+                    location: 'hybrid',
+                    requirements: '- Интерес к сфере цифрового маркетинга\n- Базовые знания SEO, SMM или контент-маркетинга\n- Грамотная устная и письменная речь\n- Студенты направлений маркетинг, реклама, PR или смежных специальностей',
+                    benefits: '- Сертификат о прохождении стажировки\n- Возможность трудоустройства для лучших стажеров\n- Доступ к профессиональным инструментам и сервисам\n- Посещение отраслевых мероприятий и конференций'
+                },
+                'product-management': {
+                    title: 'Стажировка по управлению продуктом',
+                    description: 'Программа для будущих продакт-менеджеров. Вы научитесь определять потребности пользователей, формировать требования к продукту, взаимодействовать с разработчиками и дизайнерами, планировать развитие продукта.',
+                    duration: 3,
+                    positions: 2,
+                    salary: 40000,
+                    location: 'hybrid',
+                    requirements: '- Аналитический склад ума\n- Базовое понимание процессов разработки ПО\n- Навыки коммуникации и презентации\n- Студенты старших курсов или выпускники технических или экономических специальностей',
+                    benefits: '- Менторство от руководителя продукта\n- Работа над реальными продуктовыми задачами\n- Гибкий график\n- Возможность роста до Junior PM\n- Дружелюбная команда'
+                },
+                'hr': {
+                    title: 'Стажировка по HR и рекрутингу',
+                    description: 'Программа для начинающих HR-специалистов. Вы примете участие в процессах поиска и отбора кандидатов, проведении собеседований, адаптации новых сотрудников и организации корпоративных мероприятий.',
+                    duration: 2,
+                    positions: 3,
+                    salary: 20000,
+                    location: 'onsite',
+                    requirements: '- Коммуникабельность\n- Интерес к сфере управления персоналом\n- Базовые знания трудового законодательства\n- Студенты старших курсов или выпускники гуманитарных специальностей',
+                    benefits: '- Опыт работы в HR-отделе крупной компании\n- Знакомство с современными HR-системами\n- Посещение профессиональных мероприятий\n- Коучинг от руководителя HR\n- Фиксированный график 5/2'
+                }
+            };
+
+            return templates[templateId] || {};
+        }
+    </script>
+</body>
+</html>
