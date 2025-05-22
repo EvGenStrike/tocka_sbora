@@ -31,4 +31,5 @@ path('api/internship/<int:internship_id>/block/create/',
 path('accounts/login/', auth_views.LoginView.as_view(template_name='internships/login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('accounts/register/', views.register, name='register'),
+path('internships/<int:internship_id>/publish/', views.publish_internship, name='publish_internship'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

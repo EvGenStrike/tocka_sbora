@@ -10,14 +10,40 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.contrib.auth import views as auth_views
+from django.views.decorators.http import require_POST
 
 from .models import Internship, Template, Block, ImageItem, TextItem, ButtonItem, VideoItem
 
 
 def my_internships(request):
+    internships = Internship.objects.all()
+
+    data = []
+    for internship in internships:
+        cover = internship.blocks.filter(type='cover').first()
+        heading = internship.blocks.filter(type='heading').first()
+
+        cover_url = None
+        heading_text = None
+
+        if cover and cover.images.exists():
+            cover_url = cover.images.first().image.url
+
+        if heading and heading.texts.exists():
+            print(heading.texts.all())
+            heading_text = heading.texts.first().text
+            heading_text = "Самая лучшая стажировка"
+
+        data.append({
+            'internship': internship,
+            'cover_url': cover_url,
+            'heading_text': heading_text,
+        })
+
     return render(request, 'internships/my_internships.html', {
-        'range6': range(6),
+        'internship_data': data
     })
+
 
 def all_internships(request):
     context = {
@@ -276,3 +302,13 @@ def register(request):
         form = UserCreationForm()
 
     return render(request, 'internships/register.html', {'form': form})
+
+from django.views.decorators.http import require_POST
+
+@require_POST
+def publish_internship(request, internship_id):
+    internship = get_object_or_404(Internship, id=internship_id, created_by=request.user)
+    internship.is_published = True
+    internship.save()
+
+    return JsonResponse({'status': 'success'})
