@@ -1,5 +1,10 @@
 from django.urls import path
 from . import views
+from .views import *
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib.auth import views as auth_views
+
 
 urlpatterns = [
     path('', views.my_internships, name='my_internships'),
@@ -20,4 +25,10 @@ path('api/internship/<int:internship_id>/block/create/',
     path('api/block/<int:block_id>/delete/',
          views.delete_block,
          name='delete_block'),
-]
+    path('create_from_empty_page/', views.create_from_empty_page, name='create_from_empty_page'),
+    path('internships/<int:internship_id>/add-block-content/', add_block_content, name='add_block_content'),
+    path('internships/<int:internship_id>/get-blocks-json/', get_blocks_json, name='get_blocks_json'),
+path('accounts/login/', auth_views.LoginView.as_view(template_name='internships/login.html'), name='login'),
+    path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('accounts/register/', views.register, name='register'),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

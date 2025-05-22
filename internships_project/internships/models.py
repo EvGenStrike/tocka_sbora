@@ -71,3 +71,59 @@ class Block(models.Model):
     def __str__(self):
         parent = self.internship or self.template
         return f"{self.get_type_display()} - {parent}"
+
+class ImageItem(models.Model):
+    """Изображения, используемые в блоках"""
+    block = models.ForeignKey(Block, on_delete=models.CASCADE, related_name='images', verbose_name=_('Блок'))
+    image = models.ImageField(_('Изображение'), upload_to='blocks/images/')
+    order = models.PositiveIntegerField(_('Порядок'), default=0)
+
+    class Meta:
+        verbose_name = _('Изображение блока')
+        verbose_name_plural = _('Изображения блока')
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Изображение #{self.pk} для {self.block}"
+
+class TextItem(models.Model):
+    """Тексты, отображаемые в текстовых блоках"""
+    block = models.ForeignKey(Block, on_delete=models.CASCADE, related_name='texts', verbose_name=_('Блок'))
+    text = models.TextField(_('Текст'))
+    order = models.PositiveIntegerField(_('Порядок'), default=0)
+
+    class Meta:
+        verbose_name = _('Текст блока')
+        verbose_name_plural = _('Тексты блока')
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Текст #{self.pk} для {self.block}"
+
+class ButtonItem(models.Model):
+    """Кнопки, используемые в блоке"""
+    block = models.ForeignKey(Block, on_delete=models.CASCADE, related_name='buttons', verbose_name=_('Блок'))
+    label = models.CharField(_('Надпись на кнопке'), max_length=100)
+    style = models.CharField(_('CSS-класс / стиль'), max_length=255, blank=True)
+    order = models.PositiveIntegerField(_('Порядок'), default=0)
+
+    class Meta:
+        verbose_name = _('Кнопка блока')
+        verbose_name_plural = _('Кнопки блока')
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Кнопка '{self.label}' для {self.block}"
+
+class VideoItem(models.Model):
+    """Видео, используемое в блоке"""
+    block = models.ForeignKey(Block, on_delete=models.CASCADE, related_name='videos', verbose_name=_('Блок'))
+    video_url = models.URLField(_('Ссылка на видео'))
+    preview_image = models.ImageField(_('Превью видео'), upload_to='blocks/videos/previews/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = _('Видео блока')
+        verbose_name_plural = _('Видео блока')
+
+    def __str__(self):
+        return f"Видео для {self.block}"

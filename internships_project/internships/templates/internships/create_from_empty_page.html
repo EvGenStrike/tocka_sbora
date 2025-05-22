@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Библиотека блоков</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: rgba(255, 219, 199, 1);
+      display: flex;
+      height: 100vh;
+      position: relative;
+    }
+
+    .sidebar {
+      width: 20%;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sidebar button {
+      padding: 10px;
+      background: #f0f0f0;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+
+    .sidebar button:hover {
+      background-color: #e0e0e0;
+    }
+
+    .content {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .block {
+      background: #fff;
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      transition: opacity 0.3s ease;
+    }
+
+    .new-block {
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .button-group button {
+      margin-right: 10px;
+    }
+
+    .back-button {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      padding: 10px 20px;
+      background-color: #fff;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: #333;
+      z-index: 100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .back-button:hover {
+      background-color: #f5f5f5;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+
+    .add-block-form {
+      background: #fff;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .add-block-form h3 {
+      margin-top: 0;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    .form-group input[type="text"],
+    .form-group textarea,
+    .form-group input[type="file"],
+    .form-group input[type="url"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+    }
+
+    .submit-btn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .submit-btn:hover {
+      background: #45a049;
+    }
+
+    .loading-indicator {
+      display: none;
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 4px;
+      z-index: 1000;
+    }
+
+    #preview-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    font-family: sans-serif;
+    z-index: 9999;
+}
+
+#preview-header {
+    background: #f0f0f0;
+    padding: 8px 12px;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+#preview-content {
+    padding: 10px;
+}
+
+.preview-block {
+    margin-bottom: 10px;
+}
+
+.preview-image {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+}
+
+.preview-text {
+    font-size: 14px;
+    color: #333;
+}
+
+.preview-button {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    margin-top: 4px;
+    color: #fff;
+    background-color: #007bff;
+    text-align: center;
+}
+
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <strong>Библиотека блоков</strong>
+    <button onclick="showBlocks('cover')">Обложка</button>
+    <button onclick="showBlocks('about')">О проекте</button>
+    <button onclick="showBlocks('heading')">Заголовок</button>
+    <button onclick="showBlocks('text')">Текстовый блок</button>
+    <button onclick="showBlocks('image')">Изображение</button>
+    <button onclick="showBlocks('form')">Форма</button>
+    <button onclick="showBlocks('button')">Кнопка</button>
+    <button onclick="showBlocks('video')">Видео</button>
+  </div>
+
+  <div class="content" id="content-area">
+    <h2>Выберите тип блока слева</h2>
+  </div>
+
+<div id="preview-container">
+  <div id="preview-header">Превью стажировки</div>
+  <div id="preview-content"></div>
+
+</div>
+
+
+  <!-- Кнопка "Назад" -->
+  <a href="{% url 'template_list' %}" class="back-button">← Назад</a>
+
+  <!-- Индикатор загрузки -->
+  <div class="loading-indicator" id="loading-indicator">Загрузка...</div>
+
+  <!-- JSON-данные -->
+  <script id="blocks-data" type="application/json">
+    {{ blocks|safe }}
+  </script>
+
+  <!-- Логика -->
+  <script>
+    // Глобальные переменные
+    const internshipId = new URLSearchParams(window.location.search).get('id');
+    let currentBlockType = null;
+    let currentBlocks = JSON.parse(document.getElementById('blocks-data').textContent);
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+      // Можно добавить дополнительную инициализацию при необходимости
+    });
+
+    // Функция для отображения блоков определенного типа
+    function showBlocks(type) {
+      currentBlockType = type;
+      const container = document.getElementById('content-area');
+      container.innerHTML = `<h2>${getBlockTypeName(type)}</h2>`;
+
+      // Добавляем форму для создания нового блока
+      const addBlockContainer = document.createElement('div');
+      addBlockContainer.id = 'add-block-container';
+      container.appendChild(addBlockContainer);
+      showAddBlockForm(type, addBlockContainer);
+      const filteredBlocks = currentBlocks.filter(b => b.type === type);
+      if (filteredBlocks.length === 0) {
+        const noBlocksMsg = document.createElement('p');
+        noBlocksMsg.textContent = 'Блоки этого типа пока не добавлены.';
+        container.appendChild(noBlocksMsg);
+        return;
+      }
+      filteredBlocks.sort((a, b) => a.order - b.order);
+      const blocksContainer = document.createElement('div');
+      blocksContainer.id = 'blocks-container';
+      filteredBlocks.forEach(block => {
+        blocksContainer.appendChild(createBlockElement(block));
+      });
+
+      container.appendChild(blocksContainer);
+    }
+    function createBlockElement(block) {
+      const div = document.createElement('div');
+      div.className = 'block';
+      div.dataset.blockId = block.id;
+
+      switch (block.type) {
+        case 'cover':
+        case 'image':
+          if (block.images && block.images.length > 0) {
+            block.images.forEach(img => {
+              const image = document.createElement('img');
+              image.src = img.image;
+              image.style.maxWidth = '100%';
+              image.style.marginBottom = '10px';
+              div.appendChild(image);
+            });
+          } else {
+            div.textContent = 'Изображения отсутствуют.';
+          }
+          break;
+
+        case 'about':
+        case 'text':
+          if (block.texts && block.texts.length > 0) {
+            block.texts.forEach(txt => {
+              const p = document.createElement('p');
+              p.textContent = txt.text;
+              p.style.margin = '10px 0';
+              div.appendChild(p);
+            });
+          } else {
+            div.textContent = 'Текст отсутствует.';
+          }
+          break;
+
+        case 'heading':
+          if (block.texts && block.texts.length > 0) {
+            block.texts.forEach(txt => {
+              const h3 = document.createElement('h3');
+              h3.textContent = txt.text;
+              h3.style.margin = '10px 0';
+              div.appendChild(h3);
+            });
+          } else {
+            div.textContent = 'Заголовок отсутствует.';
+          }
+          break;
+
+        case 'button':
+          const btnGroup = document.createElement('div');
+          btnGroup.className = 'button-group';
+          if (block.buttons && block.buttons.length > 0) {
+            block.buttons.forEach(btn => {
+              const button = document.createElement('button');
+              button.textContent = btn.label;
+              button.className = btn.style;
+              button.style.padding = '8px 16px';
+              button.style.borderRadius = '4px';
+              btnGroup.appendChild(button);
+            });
+          } else {
+            btnGroup.textContent = 'Кнопки отсутствуют.';
+          }
+          div.appendChild(btnGroup);
+          break;
+
+        case 'video':
+          if (block.videos && block.videos.length > 0) {
+            block.videos.forEach(v => {
+              const video = document.createElement('video');
+              video.src = v.video_url;
+              video.controls = true;
+              video.style.width = '100%';
+              video.style.marginTop = '10px';
+              div.appendChild(video);
+            });
+          } else {
+            div.textContent = 'Видео отсутствует.';
+          }
+          break;
+
+        default:
+          div.textContent = 'Неизвестный тип блока.';
+      }
+
+      return div;
+    }
+
+    function getBlockTypeName(type) {
+      const typeNames = {
+        'cover': 'Обложка',
+        'about': 'О проекте',
+        'heading': 'Заголовок',
+        'text': 'Текстовый блок',
+        'image': 'Изображение',
+        'form': 'Форма',
+        'button': 'Кнопка',
+        'video': 'Видео'
+      };
+      return typeNames[type] || type;
+    }
+
+    function showAddBlockForm(type, container) {
+      container.innerHTML = '';
+
+      const form = document.createElement('div');
+      form.className = 'add-block-form';
+      form.innerHTML = `<h3>Добавить новый блок ${getBlockTypeName(type)}</h3>`;
+
+      const formContent = document.createElement('div');
+
+      switch (type) {
+        case 'cover':
+        case 'image':
+          formContent.innerHTML = `
+            <div class="form-group">
+              <label for="image-upload">Загрузите изображение:</label>
+              <input type="file" id="image-upload" accept="image/*">
+            </div>
+          `;
+          break;
+
+        case 'about':
+        case 'text':
+          formContent.innerHTML = `
+            <div class="form-group">
+              <label for="text-content">Текст:</label>
+              <textarea id="text-content"></textarea>
+            </div>
+          `;
+          break;
+
+        case 'heading':
+          formContent.innerHTML = `
+            <div class="form-group">
+              <label for="heading-text">Заголовок:</label>
+              <input type="text" id="heading-text">
+            </div>
+          `;
+          break;
+
+        case 'button':
+          formContent.innerHTML = `
+            <div class="form-group">
+              <label for="button-label">Текст кнопки:</label>
+              <input type="text" id="button-label" value="Нажми меня">
+            </div>
+            <div class="form-group">
+              <label for="button-style">Стиль:</label>
+              <input type="text" id="button-style" value="btn-primary">
+            </div>
+          `;
+          break;
+
+        case 'video':
+          formContent.innerHTML = `
+            <div class="form-group">
+              <label for="video-url">Ссылка на видео:</label>
+              <input type="url" id="video-url" placeholder="https://example.com/video.mp4">
+            </div>
+          `;
+          break;
+
+        default:
+          formContent.innerHTML = '<p>Форма добавления для этого типа блока пока не реализована.</p>';
+      }
+
+      if (type !== 'default') {
+        const submitBtn = document.createElement('button');
+        submitBtn.className = 'submit-btn';
+        submitBtn.textContent = 'Добавить блок';
+        submitBtn.onclick = () => addNewBlock(type);
+
+        form.appendChild(formContent);
+        form.appendChild(submitBtn);
+        container.appendChild(form);
+      }
+    }
+
+    function addNewBlock(type) {
+      showLoading(true);
+
+      const formData = new FormData();
+      formData.append('type', type);
+
+      if (type === 'cover' || type === 'image') {
+        const imageInput = document.getElementById('image-upload');
+        if (imageInput.files.length === 0) {
+          showNotification('Пожалуйста, выберите изображение', 'error');
+          showLoading(false);
+          return;
+        }
+        formData.append('image', imageInput.files[0]);
+      }
+
+      // Обрабатываем данные формы в зависимости от типа блока
+      switch (type) {
+        case 'cover':
+        case 'image':
+          const imageInput = document.getElementById('image-upload');
+          if (imageInput.files.length > 0) {
+            formData.append('image', imageInput.files[0]);
+          } else {
+            alert('Пожалуйста, выберите изображение');
+            showLoading(false);
+            return;
+          }
+          break;
+
+        case 'about':
+        case 'text':
+          const textContent = document.getElementById('text-content').value;
+          if (textContent.trim()) {
+            formData.append('text', textContent);
+          } else {
+            alert('Пожалуйста, введите текст');
+            showLoading(false);
+            return;
+          }
+          break;
+
+        case 'heading':
+          const headingText = document.getElementById('heading-text').value;
+          if (headingText.trim()) {
+            formData.append('text', headingText);
+          } else {
+            alert('Пожалуйста, введите заголовок');
+            showLoading(false);
+            return;
+          }
+          break;
+
+        case 'button':
+          const buttonLabel = document.getElementById('button-label').value;
+          const buttonStyle = document.getElementById('button-style').value;
+          formData.append('label', buttonLabel);
+          formData.append('style', buttonStyle);
+          break;
+
+        case 'video':
+          const videoUrl = document.getElementById('video-url').value;
+          if (videoUrl.trim()) {
+            formData.append('video_url', videoUrl);
+          } else {
+            alert('Пожалуйста, введите ссылку на видео');
+            showLoading(false);
+            return;
+          }
+          break;
+      }
+
+      // Отправляем данные на сервер
+      fetch(`/internships/${internshipId}/add-block-content/`, {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': getCookie('csrftoken'),
+    },
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.status === 'success') {
+      if (data.image_url) {
+        // Для изображений сразу добавляем новый блок без перезагрузки
+        addNewImageBlock(type, data);
+      } else {
+        // Для других типов обновляем список
+        return fetchUpdatedBlocks();
+      }
+    }
+  })
+      .then(() => {
+        // Показываем уведомление об успехе
+        showNotification('Блок успешно добавлен!');
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification(error.message || 'Произошла ошибка', 'error');
+      })
+      .finally(() => {
+        showLoading(false);
+      });
+    }
+
+    // Загружает обновленные блоки с сервера
+    function fetchUpdatedBlocks() {
+      return fetch(`/internships/${internshipId}/get-blocks-json/`)
+        .then(response => response.json())
+        .then(updatedBlocks => {
+          // Обновляем глобальную переменную и JSON в DOM
+          currentBlocks = updatedBlocks;
+          document.getElementById('blocks-data').textContent = JSON.stringify(updatedBlocks);
+
+          // Перерисовываем блоки текущего типа
+          showBlocks(currentBlockType);
+        });
+    }
+
+    // Показывает/скрывает индикатор загрузки
+    function showLoading(show) {
+      const indicator = document.getElementById('loading-indicator');
+      indicator.style.display = show ? 'block' : 'none';
+    }
+
+    // Показывает уведомление
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.textContent = message;
+      notification.style.position = 'fixed';
+      notification.style.top = '20px';
+      notification.style.right = '20px';
+      notification.style.padding = '10px 15px';
+      notification.style.background = type === 'success' ? '#4CAF50' : '#f44336';
+      notification.style.color = 'white';
+      notification.style.borderRadius = '4px';
+      notification.style.zIndex = '1000';
+      document.body.appendChild(notification);
+
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.5s';
+        setTimeout(() => notification.remove(), 500);
+      }, 3000);
+    }
+
+    // Вспомогательная функция для получения CSRF токена
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    function addNewImageBlock(type, data) {
+  const blocksContainer = document.getElementById('blocks-container') ||
+                         document.createElement('div');
+  blocksContainer.id = 'blocks-container';
+
+  const newBlock = {
+    id: data.block_id,
+    type: type,
+    images: [{ image: data.image_url }],
+    texts: [],
+    buttons: [],
+    videos: []
+  };
+
+  // Добавляем новый блок в начало списка
+  currentBlocks.unshift(newBlock);
+
+  const blockElement = createBlockElement(newBlock);
+  blockElement.classList.add('new-block');
+
+  if (blocksContainer.firstChild) {
+    blocksContainer.insertBefore(blockElement, blocksContainer.firstChild);
+  } else {
+    blocksContainer.appendChild(blockElement);
+  }
+
+  // Если контейнера нет в DOM - добавляем его
+  if (!document.getElementById('blocks-container')) {
+    const contentArea = document.getElementById('content-area');
+    const addBlockContainer = document.getElementById('add-block-container');
+    contentArea.insertBefore(blocksContainer, addBlockContainer.nextSibling);
+  }
+
+  showNotification('Изображение успешно загружено!');
+}
+  </script>
+
+<!-- В конец body перед закрывающим тегом </body> добавьте: -->
+<div style="position: fixed; bottom: 20px; right: 20px;">
+  <button onclick="saveInternship()" style="
+    padding: 12px 24px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  ">
+    Сохранить стажировку
+  </button>
+</div>
+
+<script>
+  function saveInternship() {
+    showLoading(true);
+
+    fetch(`/internships/${internshipId}/publish/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        showNotification('Стажировка успешно сохранена!');
+        setTimeout(() => {
+          window.location.href = '/'; // Перенаправляем на главную
+        }, 1500);
+      } else {
+        throw new Error(data.error || 'Ошибка при сохранении');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification(error.message || 'Произошла ошибка', 'error');
+    })
+    .finally(() => {
+      showLoading(false);
+    });
+  }
+</script>
+
+<script>
+  const blocks = JSON.parse('{{ blocks|escapejs }}');
+
+  function renderPreview(blocks) {
+      const container = document.getElementById('preview-content');
+      container.innerHTML = '';
+
+      blocks.forEach(block => {
+          const div = document.createElement('div');
+          div.className = 'preview-block';
+
+          switch (block.type) {
+              case 'cover':
+              case 'image':
+                  if (block.images.length > 0) {
+                      const img = document.createElement('img');
+                      img.src = block.images[0].image;
+                      img.className = 'preview-image';
+                      div.appendChild(img);
+                  }
+                  break;
+
+              case 'heading':
+              case 'about':
+              case 'text':
+                  if (block.texts.length > 0) {
+                      const p = document.createElement('p');
+                      p.textContent = block.texts[0].text;
+                      p.className = 'preview-text';
+                      div.appendChild(p);
+                  }
+                  break;
+
+              case 'button':
+                  if (block.buttons.length > 0) {
+                      const btn = document.createElement('div');
+                      btn.textContent = block.buttons[0].label;
+                      btn.className = 'preview-button';
+                      div.appendChild(btn);
+                  }
+                  break;
+
+              case 'video':
+                  if (block.videos.length > 0) {
+                      const p = document.createElement('p');
+                      p.textContent = '🎥 Видео: ' + block.videos[0].video_url;
+                      p.className = 'preview-text';
+                      div.appendChild(p);
+                  }
+                  break;
+          }
+
+          container.appendChild(div);
+      });
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+      renderPreview(blocks);
+  });
+</script>
+
+
+</body>
+</html>

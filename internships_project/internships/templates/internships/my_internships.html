@@ -74,8 +74,13 @@
 
 <div class="container">
     <div class="top-bar">
-        <a href="{% url 'profile' %}" class="profile-button">Профиль</a>
-    </div>
+    <a href="{% url 'profile' %}" class="profile-button" style="margin-right: 10px;">Профиль</a>
+    <form action="{% url 'logout' %}" method="post" style="margin: 0;">
+        {% csrf_token %}
+        <button type="submit" class="profile-button" style="background-color: #f44336;">Выйти</button>
+    </form>
+</div>
+
 
     <div class="title">Мои стажировки</div>
 
@@ -93,6 +98,8 @@
             <button>Создать новую</button>
         </a>
     </div>
+
+</div>
 </div>
 
 </body>
