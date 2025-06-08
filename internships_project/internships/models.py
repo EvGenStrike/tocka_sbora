@@ -30,9 +30,25 @@ class Internship(models.Model):
     updated_at = models.DateTimeField(_('Дата обновления'), auto_now=True)
     is_published = models.BooleanField(_('Опубликовано'), default=False)
 
+    # Добавляем новые поля
+    duration = models.PositiveIntegerField(_('Длительность (месяцы)'), default=3)
+    positions = models.PositiveIntegerField(_('Количество позиций'), default=1)
+    salary = models.PositiveIntegerField(_('Оплата (руб/месяц)'), default=0)
+    LOCATION_CHOICES = [
+        ('remote', 'Удаленно'),
+        ('onsite', 'В офисе'),
+        ('hybrid', 'Гибридный'),
+    ]
+    location = models.CharField(_('Формат работы'), max_length=10, choices=LOCATION_CHOICES, default='remote')
+    requirements = models.TextField(_('Требования к кандидату'), blank=True)
+    benefits = models.TextField(_('Бонусы и преимущества'), blank=True)
+
     class Meta:
         verbose_name = _('Стажировка')
         verbose_name_plural = _('Стажировки')
+
+    def __str__(self):
+        return self.title
 
     def __str__(self):
         return self.title

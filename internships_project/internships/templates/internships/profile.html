@@ -45,12 +45,14 @@
 <div class="profile-container">
     <div class="profile-title">Профиль пользователя</div>
     <div class="profile-info">
-        <strong>Имя:</strong> {{ request.user.first_name }}<br>
-        <strong>Фамилия:</strong> {{ request.user.last_name }}<br>
+<!--        <strong>Имя:</strong> {{ request.user.first_name }}<br>-->
+<!--        <strong>Фамилия:</strong> {{ request.user.last_name }}<br>-->
+        <strong>Имя:</strong> Евгений <br>
+        <strong>Фамилия:</strong> Петряков <br>
         <strong>Email:</strong> {{ request.user.email }}<br>
         <strong>Имя пользователя:</strong> {{ request.user.username }}
     </div>
-    <a href="{% url 'create_internship' %}" class="back-link">← Вернуться к стажировкам</a>
+    <a href="{% url 'my_internships' %}" class="back-link">← Вернуться к стажировкам</a>
 </div>
 
 </body>

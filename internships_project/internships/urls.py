@@ -1,3 +1,4 @@
+from django.contrib.auth.views import LogoutView
 from django.urls import path
 from . import views
 from .views import *
@@ -31,5 +32,11 @@ path('api/internship/<int:internship_id>/block/create/',
 path('accounts/login/', auth_views.LoginView.as_view(template_name='internships/login.html'), name='login'),
     path('accounts/logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('accounts/register/', views.register, name='register'),
+path('logout/', LogoutView.as_view(next_page='login'), name='logout'),
 path('internships/<int:internship_id>/publish/', views.publish_internship, name='publish_internship'),
+path('internships/create-from-empty/', CreateInternshipFromScratchView.as_view(), name='create_from_empty'),
+path('internships/<int:internship_id>/update-title/', views.update_internship_title, name='update_internship_title'),
+    path('internships/<int:pk>/delete/', views.delete_internship, name='delete_internship'),
+path('internship/create-from-template/', create_internship_from_template, name='create_internship_from_template'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -165,6 +165,10 @@
             Выберите шаблон стажировки для быстрого создания программы. Вы сможете изменить все детали на следующем этапе.
         </div>
 
+        <form id="internship-form" method="post" action="{% url 'create_internship_from_template' %}">
+            {% csrf_token %}
+            <input type="hidden" id="template-id" name="template_id">
+
         <div class="templates-grid">
             <div class="template-card" onclick="selectTemplate(this, 'software-dev')">
                 <div class="template-title">Разработка программного обеспечения</div>
@@ -222,61 +226,67 @@
         </div>
 
         <div class="form-section" id="form-details">
-            <h2>Настройка стажировки</h2>
+                <h2>Настройка стажировки</h2>
 
-            <div class="form-group">
-                <label for="internship-title">Название стажировки</label>
-                <input type="text" id="internship-title" placeholder="Введите название стажировки">
-            </div>
+                <div class="form-group">
+                    <label for="internship-title">Название стажировки</label>
+                    <input type="text" id="internship-title" name="title" placeholder="Введите название стажировки" required>
+                </div>
 
-            <div class="form-group">
-                <label for="internship-description">Описание</label>
-                <textarea id="internship-description" placeholder="Подробное описание программы стажировки"></textarea>
-            </div>
+                <div class="form-group">
+                    <label for="internship-description">Описание</label>
+                    <textarea id="internship-description" name="description" placeholder="Подробное описание программы стажировки" required></textarea>
+                </div>
 
-            <div class="form-group">
-                <label for="internship-duration">Длительность (месяцы)</label>
-                <input type="number" id="internship-duration" min="1" max="12">
-            </div>
+                <div class="form-group">
+                    <label for="internship-duration">Длительность (месяцы)</label>
+                    <input type="number" id="internship-duration" name="duration" min="1" max="12" required>
+                </div>
 
-            <div class="form-group">
-                <label for="internship-positions">Количество позиций</label>
-                <input type="number" id="internship-positions" min="1" max="100">
-            </div>
+                <div class="form-group">
+                    <label for="internship-positions">Количество позиций</label>
+                    <input type="number" id="internship-positions" name="positions" min="1" max="100" required>
+                </div>
 
-            <div class="form-group">
-                <label for="internship-salary">Оплата (руб/месяц)</label>
-                <input type="number" id="internship-salary" placeholder="0 для неоплачиваемой стажировки">
-            </div>
+                <div class="form-group">
+                    <label for="internship-salary">Оплата (руб/месяц)</label>
+                    <input type="number" id="internship-salary" name="salary" placeholder="0 для неоплачиваемой стажировки">
+                </div>
 
-            <div class="form-group">
-                <label for="internship-location">Формат работы</label>
-                <select id="internship-location">
-                    <option value="remote">Удаленно</option>
-                    <option value="onsite">В офисе</option>
-                    <option value="hybrid">Гибридный</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="internship-location">Формат работы</label>
+                    <select id="internship-location" name="location">
+                        <option value="remote">Удаленно</option>
+                        <option value="onsite">В офисе</option>
+                        <option value="hybrid">Гибридный</option>
+                    </select>
+                </div>
 
-            <div class="form-group">
-                <label for="internship-requirements">Требования к кандидату</label>
-                <textarea id="internship-requirements" placeholder="Перечислите необходимые навыки и требования"></textarea>
-            </div>
+                <div class="form-group">
+                    <label for="internship-requirements">Требования к кандидату</label>
+                    <textarea id="internship-requirements" name="requirements" placeholder="Перечислите необходимые навыки и требования"></textarea>
+                </div>
 
-            <div class="form-group">
-                <label for="internship-benefits">Бонусы и преимущества</label>
-                <textarea id="internship-benefits" placeholder="Что получит стажер помимо опыта"></textarea>
-            </div>
+                <div class="form-group">
+                    <label for="internship-benefits">Бонусы и преимущества</label>
+                    <textarea id="internship-benefits" name="benefits" placeholder="Что получит стажер помимо опыта"></textarea>
+                </div>
 
-            <div class="buttons">
-                <button class="btn btn-secondary" onclick="backToTemplates()">Назад к шаблонам</button>
-                <button class="btn btn-primary" onclick="createInternship()">Создать стажировку</button>
+                <div class="buttons">
+                    <button type="button" class="btn btn-secondary" onclick="backToTemplates()">Назад к шаблонам</button>
+                    <button type="submit" class="btn btn-primary">Создать стажировку</button>
+                </div>
             </div>
-        </div>
+        </form>
     </div>
 
     <script>
+        let currentTemplateId = null;
+
         function selectTemplate(element, templateId) {
+            currentTemplateId = templateId;
+            document.getElementById('template-id').value = templateId;
+
             // Удалить класс selected у всех карточек
             document.querySelectorAll('.template-card').forEach(card => {
                 card.classList.remove('selected');
@@ -309,6 +319,21 @@
                 card.classList.remove('selected');
             });
         }
+
+        // Обработка отправки формы
+        document.getElementById('internship-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!currentTemplateId) {
+                alert('Пожалуйста, выберите шаблон');
+                return;
+            }
+
+            // Можно добавить дополнительную валидацию здесь
+
+            // Отправка формы
+            this.submit();
+        });
 
         function createInternship() {
             // Здесь будет логика отправки формы на сервер

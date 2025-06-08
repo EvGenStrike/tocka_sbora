@@ -147,11 +147,11 @@
       z-index: 1000;
     }
 
-    #preview-container {
+   #preview-container {
     position: fixed;
     bottom: 20px;
-    left: 20px;
-    width: 300px;
+    left: calc(20% + 30px); /* Отступ от сайдбара (20% ширина сайдбара + 30px) */
+    width: 280px; /* Уменьшенная ширина */
     max-height: 500px;
     overflow-y: auto;
     background: #fff;
@@ -159,7 +159,7 @@
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     border-radius: 8px;
     font-family: sans-serif;
-    z-index: 9999;
+    z-index: 100; /* Убедитесь, что он не перекрывает важные элементы */
 }
 
 #preview-header {
@@ -200,11 +200,105 @@
     text-align: center;
 }
 
+.preview-navigation {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      background: #f5f5f5;
+      border-top: 1px solid #ddd;
+    }
+
+    .preview-nav-button {
+      padding: 6px 12px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .preview-nav-button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    #next-section-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    #next-section-button:disabled {
+      background: #cccccc;
+      cursor: not-allowed;
+    }
+
+    /* Убираем навигацию из превью */
+    .preview-navigation {
+      display: none;
+    }
   </style>
 </head>
 <body>
+<script>
+    function changeInternshipTitle() {
+  const currentTitle = document.title || 'Новая стажировка';
+  const newTitle = prompt("Введите новый заголовок стажировки:", currentTitle);
+
+  if (newTitle && newTitle.trim() !== '') {
+    fetch(`/internships/${internshipId}/update-title/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({ title: newTitle.trim() })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.status === 'success') {
+        showNotification('Заголовок обновлён');
+        document.title = newTitle;
+      } else {
+        showNotification('Ошибка при обновлении заголовка', 'error');
+      }
+    })
+    .catch(error => {
+      console.error(error);
+      showNotification('Сетевая ошибка', 'error');
+    });
+  }
+}
+
+</script>
+
   <div class="sidebar">
     <strong>Библиотека блоков</strong>
+    <button onclick="changeInternshipTitle()" style="
+  padding: 10px;
+  background: #f0f0f0;
+  color: #333;
+  border: none;
+  border-radius: 4px;
+  margin-bottom: 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  width: 100%;
+  text-align: center;
+  font-weight: bold;
+  font-size: 15px;
+">
+  Изменить заголовок
+</button>
     <button onclick="showBlocks('cover')">Обложка</button>
     <button onclick="showBlocks('about')">О проекте</button>
     <button onclick="showBlocks('heading')">Заголовок</button>
@@ -220,14 +314,15 @@
   </div>
 
 <div id="preview-container">
-  <div id="preview-header">Превью стажировки</div>
-  <div id="preview-content"></div>
+    <div id="preview-header">Превью стажировки</div>
+    <div id="preview-content"></div>
+  </div>
 
-</div>
+<button id="next-section-button">Далее →</button>
 
 
   <!-- Кнопка "Назад" -->
-  <a href="{% url 'template_list' %}" class="back-button">← Назад</a>
+  <a href="{% url 'my_internships' %}" class="back-button">← Мои стажировки</a>
 
   <!-- Индикатор загрузки -->
   <div class="loading-indicator" id="loading-indicator">Загрузка...</div>
@@ -239,6 +334,49 @@
 
   <!-- Логика -->
   <script>
+    // Порядок разделов для навигации
+    const sectionsOrder = [
+      'cover', 'about', 'heading', 'text',
+      'image', 'form', 'button', 'video'
+    ];
+
+    let currentSectionIndex = 0;
+
+    // При загрузке страницы сразу открываем раздел "Обложка"
+    document.addEventListener('DOMContentLoaded', function() {
+  // Загружаем сохраненный тип блока или используем 'cover' по умолчанию
+  const savedType = localStorage.getItem('lastBlockType') || 'cover';
+  currentSectionIndex = sectionsOrder.indexOf(savedType);
+  if (currentSectionIndex === -1) currentSectionIndex = 0;
+
+  showBlocks(savedType); // Показываем сохраненный тип блока
+  updateNavigationButton();
+  renderPreview(blocks);
+});
+
+    // Обработчик кнопки "Далее"
+    document.getElementById('next-section-button').addEventListener('click', function() {
+      if (currentSectionIndex < sectionsOrder.length - 1) {
+        currentSectionIndex++;
+        showBlocks(sectionsOrder[currentSectionIndex]);
+        updateNavigationButton();
+      } else {
+        // Действие при завершении (например, сохранение)
+        saveInternship();
+      }
+    });
+
+    // Обновляем состояние кнопки "Далее"
+    function updateNavigationButton() {
+      const nextButton = document.getElementById('next-section-button');
+
+      if (currentSectionIndex === sectionsOrder.length - 1) {
+        nextButton.textContent = 'Завершить';
+      } else {
+        nextButton.textContent = 'Далее →';
+      }
+    }
+
     // Глобальные переменные
     const internshipId = new URLSearchParams(window.location.search).get('id');
     let currentBlockType = null;
@@ -252,6 +390,7 @@
     // Функция для отображения блоков определенного типа
     function showBlocks(type) {
       currentBlockType = type;
+      localStorage.setItem('lastBlockType', type);
       const container = document.getElementById('content-area');
       container.innerHTML = `<h2>${getBlockTypeName(type)}</h2>`;
 
@@ -447,7 +586,9 @@
         const submitBtn = document.createElement('button');
         submitBtn.className = 'submit-btn';
         submitBtn.textContent = 'Добавить блок';
-        submitBtn.onclick = () => addNewBlock(type);
+        submitBtn.onclick = () => {
+    addNewBlock(type);     // Выполняем основное действие
+  };
 
         form.appendChild(formContent);
         form.appendChild(submitBtn);
@@ -546,6 +687,9 @@
         return fetchUpdatedBlocks();
       }
     }
+
+    showBlocks(currentBlockType);
+
   })
       .then(() => {
         // Показываем уведомление об успехе
@@ -651,23 +795,24 @@
   }
 
   showNotification('Изображение успешно загружено!');
+
 }
   </script>
 
 <!-- В конец body перед закрывающим тегом </body> добавьте: -->
 <div style="position: fixed; bottom: 20px; right: 20px;">
-  <button onclick="saveInternship()" style="
-    padding: 12px 24px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    font-size: 16px;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-  ">
-    Сохранить стажировку
-  </button>
+<!--  <button onclick="saveInternship()" style="-->
+<!--    padding: 12px 24px;-->
+<!--    background-color: #4CAF50;-->
+<!--    color: white;-->
+<!--    border: none;-->
+<!--    border-radius: 4px;-->
+<!--    font-size: 16px;-->
+<!--    cursor: pointer;-->
+<!--    box-shadow: 0 2px 4px rgba(0,0,0,0.2);-->
+<!--  ">-->
+<!--    Сохранить стажировку-->
+<!--  </button>-->
 </div>
 
 <script>
@@ -686,7 +831,7 @@
       if (data.status === 'success') {
         showNotification('Стажировка успешно сохранена!');
         setTimeout(() => {
-          window.location.href = '/'; // Перенаправляем на главную
+          window.location.href = ''; // Перенаправляем на главную
         }, 1500);
       } else {
         throw new Error(data.error || 'Ошибка при сохранении');
@@ -817,8 +962,66 @@
 
 
   document.addEventListener('DOMContentLoaded', function() {
-      renderPreview(blocks);
-  });
+  const savedType = localStorage.getItem('selectedBlockType') || 'cover';
+  currentSectionIndex = sectionsOrder.indexOf(savedType);
+  if (currentSectionIndex === -1) currentSectionIndex = 0;
+
+  showBlocks(savedType);
+  updateNavigationButton();
+  renderPreview(JSON.parse('{{ blocks|escapejs }}'));
+});
+</script>
+
+<div style="position: fixed; bottom: 70px; right: 20px;">
+  <button onclick="confirmDeleteInternship()" style="
+    padding: 12px 24px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  ">
+    Удалить стажировку
+  </button>
+</div>
+
+<script>
+  function confirmDeleteInternship() {
+    if (confirm('Вы уверены, что хотите удалить эту стажировку? Это действие нельзя отменить.')) {
+      deleteInternship();
+    }
+  }
+
+  function deleteInternship() {
+    showLoading(true);
+
+    fetch(`/internships/${internshipId}/delete/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+    })
+    .then(response => {
+      if (response.ok) {
+        showNotification('Стажировка успешно удалена!');
+        setTimeout(() => {
+          window.location.href = '/'; // Перенаправляем на список стажировок
+        }, 1500);
+      } else {
+        throw new Error('Ошибка при удалении');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification(error.message || 'Произошла ошибка при удалении', 'error');
+    })
+    .finally(() => {
+      showLoading(false);
+    });
+  }
 </script>
 
 

@@ -1,6 +1,11 @@
+import re
+
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
 from django.urls import reverse_lazy
 from django.http import JsonResponse, Http404
@@ -10,16 +15,21 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.storage import default_storage
 from django.contrib.auth import views as auth_views
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST, require_http_methods
 
 from .models import Internship, Template, Block, ImageItem, TextItem, ButtonItem, VideoItem
 
 
 def my_internships(request):
     internships = Internship.objects.all()
+    print(f"Стажировки: {internships}")
 
     data = []
+    i = 0
     for internship in internships:
+        if i == 3 or i == 4:
+            i += 1
+            continue
         cover = internship.blocks.filter(type='cover').first()
         heading = internship.blocks.filter(type='heading').first()
 
@@ -30,10 +40,16 @@ def my_internships(request):
             cover_url = cover.images.first().image.url
 
         if heading and heading.texts.exists():
-            print(heading.texts.all())
-            heading_text = heading.texts.first().text
-            heading_text = "Самая лучшая стажировка"
+            texts = heading.texts.all()
+            heading_str = str(heading)
+            match = re.search(r'-\s*(\S+)', heading_str)
+            if match:
+                internship_heading = match.group(1)
 
+            heading_text = internship_heading
+            #heading_text = "Самая лучшая стажировка"
+
+        print(internship)
         data.append({
             'internship': internship,
             'cover_url': cover_url,
@@ -68,6 +84,13 @@ class InternshipTemplateListView(LoginRequiredMixin, ListView):
         context['page_title'] = 'Создать стажировку'
         return context
 
+class CreateInternshipFromScratchView(LoginRequiredMixin, View):
+    def get(self, request):
+        internship = Internship.objects.create(
+            title='Новая стажировка',
+            created_by=request.user
+        )
+        return redirect(f"{reverse_lazy('create_from_empty_page')}?id={internship.id}")
 
 class BlockEditorView(LoginRequiredMixin, UpdateView):
     """Представление для редактора блоков"""
@@ -312,3 +335,79 @@ def publish_internship(request, internship_id):
     internship.save()
 
     return JsonResponse({'status': 'success'})
+
+@require_POST
+@csrf_exempt
+def update_internship_title(request, internship_id):
+    internship = get_object_or_404(Internship, id=internship_id, created_by=request.user)
+    data = json.loads(request.body)
+    new_title = data.get('title', '').strip()
+    if new_title:
+        internship.title = new_title
+        internship.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error', 'message': 'Пустой заголовок'}, status=400)
+
+@require_http_methods(["DELETE"])
+def delete_internship(request, pk):
+    try:
+        internship = Internship.objects.get(pk=pk, created_by=request.user)
+        internship.delete()
+        return JsonResponse({'status': 'success'})
+    except Internship.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Стажировка не найдена'}, status=404)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+@login_required
+def create_internship_from_template(request):
+    if request.method == 'POST':
+        template_id = request.POST.get('template_id')
+        try:
+            # Создаем новую стажировку
+            internship = Internship.objects.create(
+                title=request.POST.get('title'),
+                description=request.POST.get('description'),
+                created_by=request.user,
+                is_published=False
+            )
+
+            # Получаем шаблон (если нужен)
+            template = Template.objects.get(id=template_id) if template_id else None
+
+            # Здесь можно добавить копирование блоков из шаблона в стажировку
+            if template:
+                for block in template.blocks.all():
+                    new_block = Block.objects.create(
+                        internship=internship,
+                        type=block.type,
+                        content=block.content,
+                        order=block.order
+                    )
+
+                    # Копируем связанные объекты (изображения, тексты и т.д.)
+                    if block.type == 'image':
+                        for image in block.images.all():
+                            ImageItem.objects.create(
+                                block=new_block,
+                                image=image.image,
+                                order=image.order
+                            )
+                    elif block.type == 'text':
+                        for text in block.texts.all():
+                            TextItem.objects.create(
+                                block=new_block,
+                                text=text.text,
+                                order=text.order
+                            )
+                    # Аналогично для других типов блоков
+
+            messages.success(request, 'Стажировка успешно создана!')
+            return redirect('internship_detail', pk=internship.id)
+
+        except Exception as e:
+            messages.error(request, f'Ошибка при создании стажировки: {str(e)}')
+            return redirect('template_list')
+
+    return redirect('template_list')
