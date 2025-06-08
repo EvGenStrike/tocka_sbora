@@ -1,14 +1,12 @@
-from flask import Flask, render_template, url_for
+import os
 
-app = Flask(__name__)
-
-@app.route('/')
-def my_internships():
-    return render_template('my_internships.html')
-
-@app.route('/all')
-def all_internships():
-    return render_template('all_internships.html')
+from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    file_name = default_storage.save('test_file.txt', ContentFile(b'Hello Yandex!'))
+    print(default_storage.url(file_name))
+    print(default_storage.__class__)
+
+    # app.run(debug=True)

@@ -25,10 +25,44 @@ SECRET_KEY = 'django-insecure-*f2g#*kk^m05__af@+=ean*z!hadn)zq7&-_$1l2qb=5ngwv!q
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = ['*']
 
 # Application definition
+ENDPOINT = 'storage.yandexcloud.net'
+ENDPOINT_URL = 'https://' + ENDPOINT
+
+STATIC_URL = f"{ENDPOINT_URL}/tochka-sbora-bucket/static/"
+MEDIA_URL = f"{ENDPOINT_URL}/tochka-sbora-bucket/media/"
+
+default_storage_backend = "storages.backends.s3.S3Storage"
+default_storage_options = {
+    "access_key": 'YCAJEf8KiaKyoH_Nxu3B4yOFN',
+    "secret_key": 'YCPuZoSAHLJT6cGRCVapKxXzD6LWzDzL9RE-Y7Sz',
+    "bucket_name": 'tochka-sbora-bucket',
+    "region_name": 'ru-central1',
+    "endpoint_url": ENDPOINT_URL,
+    "custom_domain": f"{ENDPOINT}/tochka-sbora-bucket",
+    "default_acl": 'public-read',
+    "querystring_auth": False,
+    "file_overwrite": True,
+}
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": default_storage_backend,
+        "OPTIONS": {
+            **default_storage_options,
+            "location": "static",
+        }
+    },
+    "default": {
+        "BACKEND": default_storage_backend,
+        "OPTIONS": {
+            # add or override options defined in default
+            **default_storage_options,
+            "location": "media",
+        },
+    },
+}
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -37,7 +71,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'internships'
+    'internships',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -48,7 +83,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'internships.middleware.AuthRequiredMiddleware'
+    'internships.middleware.AuthRequiredMiddleware',
+    'django.middleware.locale.LocaleMiddleware'
 ]
 
 ROOT_URLCONF = 'internships_project.urls'
@@ -71,16 +107,33 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'internships_project.wsgi.application'
 
-MEDIA_URL = '/media/'
+# MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'tochka_sbora_bd',
+        'USER': 'admin_bd',
+        'PASSWORD': os.environ.get('DB_PASSWORD', '12345678'),
+        'HOST': 'c-c9qkmupg9309q8l3uk14.rw.mdb.yandexcloud.net',
+        'PORT': '3306',
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'ssl': {
+                'ca': os.getenv('SSL_CA_CERT_PATH', r'C:\Users\flyli\CA.pem'),
+            },
+        },
     }
 }
 
@@ -107,7 +160,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ru'
 
 TIME_ZONE = 'UTC'
 
@@ -115,11 +168,15 @@ USE_I18N = True
 
 USE_TZ = True
 
+LANGUAGES = [
+    ('ru', 'Russian'),
+]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+# STATIC_URL = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
