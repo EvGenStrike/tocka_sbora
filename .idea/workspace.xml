@@ -5,19 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="05543f39-4508-4f60-b2cb-2d02c99b1547" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/internships_project/CA.pem" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internships_project/Dockerfile" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internships_project/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internships_project/internships_project/storages.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/internships_project/internships_project/yandex_s3_storage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internships_project/db.sqlite3" beforeDir="false" afterPath="$PROJECT_DIR$/internships_project/db.sqlite3" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internships_project/internships/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internships_project/internships/migrations/0002_buttonitem_imageitem_textitem_videoitem.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/internships_project/internships/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/internships_project/internships/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/internships_project/internships_project/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/internships_project/internships_project/settings.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
