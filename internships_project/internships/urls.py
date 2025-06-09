@@ -1,5 +1,7 @@
 from django.contrib.auth.views import LogoutView
-from django.urls import path
+from django.urls import path, include
+from django_prometheus import exports
+
 from . import views
 from .views import *
 from django.conf import settings
@@ -38,5 +40,5 @@ path('internships/create-from-empty/', CreateInternshipFromScratchView.as_view()
 path('internships/<int:internship_id>/update-title/', views.update_internship_title, name='update_internship_title'),
     path('internships/<int:pk>/delete/', views.delete_internship, name='delete_internship'),
 path('internship/create-from-template/', create_internship_from_template, name='create_internship_from_template'),
-
+    path('metrics/', exports.ExportToDjangoView, name='prometheus-metrics'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

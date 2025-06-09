@@ -36,8 +36,8 @@ MEDIA_URL = f"{ENDPOINT_URL}/tochka-sbora-bucket/media/"
 
 default_storage_backend = "storages.backends.s3.S3Storage"
 default_storage_options = {
-    "access_key": '1',
-    "secret_key": '2',
+    "access_key": 'YCAJEf8KiaKyoH_Nxu3B4yOFN',
+    "secret_key": ' YCPuZoSAHLJT6cGRCVapKxXzD6LWzDzL9RE-Y7Sz',
     "bucket_name": 'tochka-sbora-bucket',
     "region_name": 'ru-central1',
     "endpoint_url": ENDPOINT_URL,
@@ -57,7 +57,6 @@ STORAGES = {
     "default": {
         "BACKEND": default_storage_backend,
         "OPTIONS": {
-            # add or override options defined in default
             **default_storage_options,
             "location": "media",
         },
@@ -73,6 +72,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'internships',
     'storages',
+    'django_prometheus',
 ]
 
 MIDDLEWARE = [
@@ -84,7 +84,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'internships.middleware.AuthRequiredMiddleware',
-    'django.middleware.locale.LocaleMiddleware'
+    'django.middleware.locale.LocaleMiddleware',
+'django_prometheus.middleware.PrometheusBeforeMiddleware',
+'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 ROOT_URLCONF = 'internships_project.urls'
