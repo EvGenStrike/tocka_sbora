@@ -1,252 +1,10 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
   <title>Библиотека блоков</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      background-color: rgba(255, 219, 199, 1);
-      display: flex;
-      height: 100vh;
-      position: relative;
-    }
-
-    .sidebar {
-      width: 20%;
-      background: #fff;
-      padding: 20px;
-      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .sidebar button {
-      padding: 10px;
-      background: #f0f0f0;
-      border: none;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: background-color 0.2s;
-    }
-
-    .sidebar button:hover {
-      background-color: #e0e0e0;
-    }
-
-    .content {
-      flex: 1;
-      padding: 20px;
-      overflow-y: auto;
-    }
-
-    .block {
-      background: #fff;
-      margin-bottom: 20px;
-      padding: 15px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      transition: opacity 0.3s ease;
-    }
-
-    .new-block {
-      animation: fadeIn 0.5s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .button-group button {
-      margin-right: 10px;
-    }
-
-    .back-button {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      padding: 10px 20px;
-      background-color: #fff;
-      border: 1px solid #d1d5db;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s;
-      text-decoration: none;
-      color: #333;
-      z-index: 100;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .back-button:hover {
-      background-color: #f5f5f5;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
-
-    .add-block-form {
-      background: #fff;
-      padding: 20px;
-      margin-top: 20px;
-      border-radius: 4px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .add-block-form h3 {
-      margin-top: 0;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-    }
-
-    .form-group input[type="text"],
-    .form-group textarea,
-    .form-group input[type="file"],
-    .form-group input[type="url"] {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-
-    .form-group textarea {
-      min-height: 100px;
-    }
-
-    .submit-btn {
-      background: #4CAF50;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .submit-btn:hover {
-      background: #45a049;
-    }
-
-    .loading-indicator {
-      display: none;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: rgba(0,0,0,0.7);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 4px;
-      z-index: 1000;
-    }
-
-   #preview-container {
-    position: fixed;
-    bottom: 20px;
-    left: calc(20% + 30px); /* Отступ от сайдбара (20% ширина сайдбара + 30px) */
-    width: 280px; /* Уменьшенная ширина */
-    max-height: 500px;
-    overflow-y: auto;
-    background: #fff;
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    border-radius: 8px;
-    font-family: sans-serif;
-    z-index: 100; /* Убедитесь, что он не перекрывает важные элементы */
-}
-
-#preview-header {
-    background: #f0f0f0;
-    padding: 8px 12px;
-    font-weight: bold;
-    border-bottom: 1px solid #ddd;
-    text-align: center;
-}
-
-#preview-content {
-    padding: 10px;
-}
-
-.preview-block {
-    margin-bottom: 10px;
-}
-
-.preview-image {
-    width: 100%;
-    height: auto;
-    border-radius: 4px;
-}
-
-.preview-text {
-    font-size: 14px;
-    color: #333;
-}
-
-.preview-button {
-    display: inline-block;
-    padding: 6px 12px;
-    border-radius: 4px;
-    font-size: 13px;
-    margin-top: 4px;
-    color: #fff;
-    background-color: #007bff;
-    text-align: center;
-}
-
-.preview-navigation {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px;
-      background: #f5f5f5;
-      border-top: 1px solid #ddd;
-    }
-
-    .preview-nav-button {
-      padding: 6px 12px;
-      background: #3b82f6;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .preview-nav-button:disabled {
-      background: #cccccc;
-      cursor: not-allowed;
-    }
-
-    #next-section-button {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      padding: 10px 20px;
-      background: #3b82f6;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-      z-index: 1000;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
-
-    #next-section-button:disabled {
-      background: #cccccc;
-      cursor: not-allowed;
-    }
-
-    /* Убираем навигацию из превью */
-    .preview-navigation {
-      display: none;
-    }
-  </style>
+    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
 </head>
 <body>
 <script>
@@ -315,7 +73,7 @@
 
 <div id="preview-container">
     <div id="preview-header">Превью стажировки</div>
-    <div id="preview-content"></div>
+    <iframe id="preview-content" src="{% url 'internship_detail' pk=internship.id %}" frameborder="0" style="width: 100%; height: 100%;"></iframe>
   </div>
 
 <button id="next-section-button">Далее →</button>
@@ -351,7 +109,6 @@
 
   showBlocks(savedType); // Показываем сохраненный тип блока
   updateNavigationButton();
-  renderPreview(blocks);
 });
 
     // Обработчик кнопки "Далее"
@@ -694,6 +451,8 @@
       .then(() => {
         // Показываем уведомление об успехе
         showNotification('Блок успешно добавлен!');
+        // Обновляем превью после добавления блока
+        refreshPreview();
       })
       .catch(error => {
         console.error('Error:', error);
@@ -795,7 +554,12 @@
   }
 
   showNotification('Изображение успешно загружено!');
+}
 
+// Функция для обновления превью
+function refreshPreview() {
+  const iframe = document.getElementById('preview-content');
+  iframe.src = iframe.src; // Перезагружаем iframe
 }
   </script>
 
@@ -850,117 +614,6 @@
 <script>
   const blocks = JSON.parse('{{ blocks|escapejs }}');
 
-  function renderPreview(blocks) {
-  const container = document.getElementById('preview-content');
-  container.innerHTML = '';
-
-  let coverImage = null;
-  let headingText = null;
-  const contentBlocks = [];
-  const footerBlocks = [];
-
-  for (const block of blocks) {
-    switch (block.type) {
-      case 'cover':
-        if (block.images && block.images.length > 0) {
-          coverImage = block.images[0].image;
-        }
-        break;
-      case 'heading':
-        if (block.texts && block.texts.length > 0) {
-          headingText = block.texts[0].text;
-        }
-        break;
-      case 'about':
-      case 'text':
-      case 'image':
-        contentBlocks.push(block);
-        break;
-      case 'button':
-      case 'video':
-        footerBlocks.push(block);
-        break;
-    }
-  }
-
-  // 1. Обложка + заголовок или просто обложка
-  if (coverImage && headingText) {
-    const coverDiv = document.createElement('div');
-    coverDiv.style.position = 'relative';
-    coverDiv.style.backgroundImage = `url('${coverImage}')`;
-    coverDiv.style.backgroundSize = 'cover';
-    coverDiv.style.backgroundPosition = 'center';
-    coverDiv.style.height = '180px';
-    coverDiv.style.borderRadius = '8px';
-    coverDiv.style.display = 'flex';
-    coverDiv.style.alignItems = 'center';
-    coverDiv.style.justifyContent = 'center';
-    coverDiv.style.marginBottom = '16px';
-
-    const h1 = document.createElement('h1');
-    h1.textContent = headingText;
-    h1.style.color = 'white';
-    h1.style.fontSize = '20px';
-    h1.style.textAlign = 'center';
-    h1.style.padding = '10px 15px';
-    h1.style.textShadow = '1px 1px 4px rgba(0,0,0,0.6)';
-    coverDiv.appendChild(h1);
-
-    container.appendChild(coverDiv);
-  } else if (coverImage) {
-    const coverImg = document.createElement('img');
-    coverImg.src = coverImage;
-    coverImg.className = 'preview-image';
-    container.appendChild(coverImg);
-  }
-
-  // 2. Контентные блоки (тексты и изображения)
-  for (const block of contentBlocks) {
-    const div = document.createElement('div');
-    div.className = 'preview-block';
-
-    if ((block.type === 'text' || block.type === 'about') && block.texts.length > 0) {
-      const p = document.createElement('p');
-      p.textContent = block.texts[0].text;
-      p.className = 'preview-text';
-      div.appendChild(p);
-    }
-
-    if (block.type === 'image' && block.images.length > 0) {
-      const img = document.createElement('img');
-      img.src = block.images[0].image;
-      img.className = 'preview-image';
-      div.appendChild(img);
-    }
-
-    container.appendChild(div);
-  }
-
-  // 3. Финальные элементы — кнопки и видео
-  for (const block of footerBlocks) {
-    const div = document.createElement('div');
-    div.className = 'preview-block';
-
-    if (block.type === 'button' && block.buttons.length > 0) {
-      const btn = document.createElement('div');
-      btn.textContent = block.buttons[0].label;
-      btn.className = 'preview-button';
-      div.appendChild(btn);
-    }
-
-    if (block.type === 'video' && block.videos.length > 0) {
-      const video = document.createElement('div');
-      video.textContent = '🎥 Видео: ' + block.videos[0].video_url;
-      video.className = 'preview-text';
-      div.appendChild(video);
-    }
-
-    container.appendChild(div);
-  }
-}
-
-
-
   document.addEventListener('DOMContentLoaded', function() {
   const savedType = localStorage.getItem('selectedBlockType') || 'cover';
   currentSectionIndex = sectionsOrder.indexOf(savedType);
@@ -968,7 +621,6 @@
 
   showBlocks(savedType);
   updateNavigationButton();
-  renderPreview(JSON.parse('{{ blocks|escapejs }}'));
 });
 </script>
 

@@ -27,6 +27,7 @@ path('api/internship/<int:internship_id>/block/create/',
          views.delete_block,
          name='delete_block'),
     path('create_from_empty_page/', views.create_from_empty_page, name='create_from_empty_page'),
+    path('nice_template/', views.nice_template, name='nice_template'),
     path('internships/<int:internship_id>/add-block-content/', add_block_content, name='add_block_content'),
     path('internships/<int:internship_id>/get-blocks-json/', get_blocks_json, name='get_blocks_json'),
 path('accounts/login/', auth_views.LoginView.as_view(template_name='internships/login.html'), name='login'),
@@ -38,5 +39,6 @@ path('internships/create-from-empty/', CreateInternshipFromScratchView.as_view()
 path('internships/<int:internship_id>/update-title/', views.update_internship_title, name='update_internship_title'),
     path('internships/<int:pk>/delete/', views.delete_internship, name='delete_internship'),
 path('internship/create-from-template/', create_internship_from_template, name='create_internship_from_template'),
-
+path("preview/", internship_preview, name="internship_preview"),
+path('internships/<int:pk>/', views.internship_detail, name='internship_detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

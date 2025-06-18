@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>{{ internship.title }}</title>
+  <style>
+    /* Основные стили */
+    :root {
+      --primary: #4361ee;
+      --primary-dark: #3a56d4;
+      --secondary: #3f37c9;
+      --text: #2b2d42;
+      --text-light: #8d99ae;
+      --light: #edf2f4;
+      --white: #ffffff;
+      --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      --shadow-hover: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f8fafc;
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    #internship-content {
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 0 30px 60px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .block {
+      padding: 30px 0;
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .block:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    /* Обложка */
+    .cover {
+      position: relative;
+      margin: -40px -30px 40px;
+      border-radius: 0 0 16px 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-hover);
+      height: 400px;
+    }
+
+    .cover::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(67, 97, 238, 0.3) 0%, rgba(63, 55, 201, 0.5) 100%);
+      z-index: 1;
+    }
+
+    .cover img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+      transition: transform 0.5s ease;
+    }
+
+    .cover:hover img {
+      transform: scale(1.03);
+    }
+
+    /* Заголовки */
+    h1 {
+      font-size: 2.8rem;
+      margin: 0 0 20px 0;
+      color: var(--white);
+      font-weight: 800;
+      line-height: 1.2;
+      position: relative;
+      z-index: 2;
+      padding: 0 30px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+
+    h2 {
+      font-size: 2rem;
+      margin: 40px 0 20px;
+      color: var(--text);
+      font-weight: 700;
+      position: relative;
+      padding-bottom: 10px;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 60px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 2px;
+    }
+
+    /* Текстовые блоки */
+    p {
+      font-size: 1.1rem;
+      color: var(--text);
+      margin-bottom: 20px;
+      white-space: pre-line;
+    }
+
+    .text-highlight {
+      background: linear-gradient(120deg, rgba(67, 97, 238, 0.15) 0%, rgba(67, 97, 238, 0) 100%);
+      padding: 20px 25px;
+      border-radius: 12px;
+      border-left: 4px solid var(--primary);
+      margin: 25px 0;
+    }
+
+    /* Изображения */
+    .image-block {
+      margin: 30px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .image-block:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .image-block img {
+      width: 100%;
+      display: block;
+      height: auto;
+    }
+
+    .image-caption {
+      font-size: 0.9rem;
+      color: var(--text-light);
+      text-align: center;
+      padding: 10px 15px;
+      background: var(--light);
+    }
+
+    /* Видео */
+    .video-container {
+      position: relative;
+      margin: 30px 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .video-container video {
+      width: 100%;
+      display: block;
+    }
+
+    /* Кнопка */
+    .button-container {
+      text-align: center;
+      margin: 40px 0 20px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: white;
+      padding: 16px 36px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(67, 97, 238, 0.4);
+      border: none;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(67, 97, 238, 0.6);
+    }
+
+    .button:active {
+      transform: translateY(0);
+    }
+
+    .button::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 100%);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .button:hover::after {
+      opacity: 1;
+    }
+
+    /* Анимации */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .block {
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    .block:nth-child(2) { animation-delay: 0.1s; }
+    .block:nth-child(3) { animation-delay: 0.2s; }
+    .block:nth-child(4) { animation-delay: 0.3s; }
+    .block:nth-child(5) { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+  <div id="internship-content"></div>
+
+  <script>
+    const blocks = {{ blocks|safe }};
+
+    function renderBlocks(blocks) {
+      const container = document.getElementById('internship-content');
+
+      for (const block of blocks) {
+        const div = document.createElement('div');
+        div.className = 'block';
+
+        switch (block.type) {
+          case 'cover':
+            if (block.images?.length) {
+              div.classList.add('cover');
+              const img = document.createElement('img');
+              img.src = block.images[0].image;
+              img.alt = block.images[0].alt || 'Обложка стажировки';
+
+              // Добавляем заголовок поверх обложки
+              const title = document.createElement('h1');
+              title.textContent = document.title;
+              div.appendChild(title);
+              div.appendChild(img);
+            }
+            break;
+
+          case 'heading':
+            if (block.texts?.length) {
+              const h = document.createElement('h2');
+              h.textContent = block.texts[0].text;
+              div.appendChild(h);
+            }
+            break;
+
+          case 'about':
+            if (block.texts?.length) {
+              const p = document.createElement('p');
+              p.className = 'text-highlight';
+              p.textContent = block.texts[0].text;
+              div.appendChild(p);
+            }
+            break;
+
+          case 'text':
+            if (block.texts?.length) {
+              const p = document.createElement('p');
+              p.textContent = block.texts[0].text;
+              div.appendChild(p);
+            }
+            break;
+
+          case 'image':
+            if (block.images?.length) {
+              const imageContainer = document.createElement('div');
+              imageContainer.className = 'image-block';
+
+              const img = document.createElement('img');
+              img.src = block.images[0].image;
+              img.alt = block.images[0].alt || 'Изображение';
+              imageContainer.appendChild(img);
+
+              if (block.images[0].alt) {
+                const caption = document.createElement('div');
+                caption.className = 'image-caption';
+                caption.textContent = block.images[0].alt;
+                imageContainer.appendChild(caption);
+              }
+
+              div.appendChild(imageContainer);
+            }
+            break;
+
+          case 'video':
+            if (block.videos?.length) {
+              const videoContainer = document.createElement('div');
+              videoContainer.className = 'video-container';
+
+              const video = document.createElement('video');
+              video.src = block.videos[0].video_url;
+              video.controls = true;
+              video.style.width = '100%';
+              videoContainer.appendChild(video);
+
+              div.appendChild(videoContainer);
+            }
+            break;
+
+          case 'button':
+            if (block.buttons?.length) {
+              const btnContainer = document.createElement('div');
+              btnContainer.className = 'button-container';
+
+              const btn = document.createElement('a');
+              btn.className = 'button';
+              btn.textContent = block.buttons[0].label;
+              btn.href = block.buttons[0].url || '#';
+              btn.target = '_blank';
+
+              btnContainer.appendChild(btn);
+              div.appendChild(btnContainer);
+            }
+            break;
+
+          default:
+            div.textContent = 'Неизвестный тип блока.';
+        }
+
+        container.appendChild(div);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => renderBlocks(blocks));
+  </script>
+</body>
+</html>

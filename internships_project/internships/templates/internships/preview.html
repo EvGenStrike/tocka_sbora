@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Превью стажировки</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; background: #f5f5f5; }
+    .preview-cover {
+      background-size: cover;
+      background-position: center;
+      color: white;
+      padding: 100px 30px;
+      text-align: center;
+    }
+    .preview-cover h1 {
+      font-size: 48px;
+      margin: 0 0 10px;
+    }
+    .preview-cover p {
+      font-size: 24px;
+      opacity: 0.85;
+    }
+    .block-text {
+      padding: 30px;
+      font-size: 18px;
+      line-height: 1.6;
+      background: white;
+    }
+    .block-image {
+      text-align: center;
+      background: white;
+      padding: 20px;
+    }
+    .block-image img {
+      max-width: 90%;
+      border-radius: 12px;
+    }
+    .block-video {
+      padding: 30px;
+      background: white;
+      text-align: center;
+    }
+    .block-video iframe {
+      width: 80%;
+      height: 400px;
+      border: none;
+      border-radius: 12px;
+    }
+    .block-button {
+      padding: 40px;
+      text-align: center;
+      background: white;
+    }
+    .block-button a {
+      background: #007bff;
+      color: white;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 18px;
+    }
+    .block-button a:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  {% for block in blocks %}
+    {% if block.type == "cover" %}
+      <div class="preview-cover" style="background-image: url('{{ block.background }}')">
+        <h1>{{ block.title }}</h1>
+        <p>{{ block.subtitle }}</p>
+      </div>
+    {% elif block.type == "text" %}
+      <div class="block-text">{{ block.content }}</div>
+    {% elif block.type == "image" %}
+      <div class="block-image">
+        <img src="{{ block.url }}" alt="">
+      </div>
+    {% elif block.type == "video" %}
+      <div class="block-video">
+        <iframe src="{{ block.url }}" allowfullscreen></iframe>
+      </div>
+    {% elif block.type == "button" %}
+      <div class="block-button">
+        <a href="{{ block.url }}" target="_blank">{{ block.text }}</a>
+      </div>
+    {% endif %}
+  {% endfor %}
+</body>
+</html>

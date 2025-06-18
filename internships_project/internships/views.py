@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DetailView
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.urls import reverse_lazy
 from django.http import JsonResponse, Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -90,7 +91,9 @@ class CreateInternshipFromScratchView(LoginRequiredMixin, View):
             title='Новая стажировка',
             created_by=request.user
         )
-        return redirect(f"{reverse_lazy('create_from_empty_page')}?id={internship.id}")
+        return redirect(f"{reverse_lazy('create_from_empty_page')}?id={internship.id}", {
+        "internshipId": internship.id
+    })
 
 class BlockEditorView(LoginRequiredMixin, UpdateView):
     """Представление для редактора блоков"""
@@ -202,6 +205,7 @@ def delete_block(request, block_id):
     return JsonResponse({'status': 'error'}, status=400)
 
 
+@xframe_options_exempt
 def create_from_empty_page(request):
     internship_id = request.GET.get('id')
     if not internship_id:
@@ -222,10 +226,13 @@ def create_from_empty_page(request):
 
     context = {
         'internship': internship,
+        'internshipId': internship.id,
         'blocks': json.dumps(blocks_data, cls=DjangoJSONEncoder),
     }
     return render(request, 'internships/create_from_empty_page.html', context)
 
+def nice_template(request):
+    return render(request, 'internships/nice_template.html')
 
 @csrf_exempt
 def add_block_content(request, internship_id):
@@ -411,3 +418,82 @@ def create_internship_from_template(request):
             return redirect('template_list')
 
     return redirect('template_list')
+
+def internship_preview(request):
+    # Пример блоков — ты можешь заменить это получением из базы
+    blocks = [
+        {
+            "type": "cover",
+            "title": "Стажировка «Профи IT»",
+            "subtitle": "Погружение в реальную разработку",
+            "background": "https://images.unsplash.com/photo-1605379399642-870262d3d051"
+        },
+        {
+            "type": "text",
+            "content": "Добро пожаловать! За 2 месяца вы прокачаете навыки backend-разработки на Python."
+        },
+        {
+            "type": "image",
+            "url": "https://images.unsplash.com/photo-1519389950473-47ba0277781c"
+        },
+        {
+            "type": "video",
+            "url": "https://www.youtube.com/embed/5qap5aO4i9A"
+        },
+        {
+            "type": "button",
+            "text": "Подать заявку",
+            "url": "https://example.com/apply"
+        }
+    ]
+    return render(request, "internships/preview.html", {"blocks": blocks})
+
+@require_POST
+def update_block(request, internship_id):
+    data = json.loads(request.body)
+    block_id = data.get('id')
+    block = get_object_or_404(Block, id=block_id, internship_id=internship_id)
+
+    if block.type in ['text', 'about', 'heading']:
+        text = data.get('text', '')
+        block.texts.all().delete()
+        block.texts.create(text=text)
+
+    elif block.type == 'button':
+        label = data.get('label')
+        style = data.get('style')
+        block.buttons.all().delete()
+        block.buttons.create(label=label, style=style)
+
+    elif block.type == 'video':
+        url = data.get('video_url')
+        block.videos.all().delete()
+        block.videos.create(video_url=url)
+
+    block.save()
+    return JsonResponse({'status': 'success'})
+
+
+@xframe_options_exempt
+def internship_detail(request, pk):
+    internship = get_object_or_404(Internship, pk=pk)
+    blocks_qs = internship.blocks.order_by('order')  # related_name='blocks'
+
+    # Подготовим JSON вручную (лучше, чем через Django serialization)
+    blocks_data = []
+    for block in blocks_qs:
+        blocks_data.append({
+            "id": block.id,
+            "type": block.type,
+            "order": block.order,
+            "texts": [{"text": t.text} for t in block.texts.all()] if hasattr(block, "texts") else [],
+            "images": [{"image": i.image.url} for i in block.images.all()] if hasattr(block, "images") else [],
+            "buttons": [{"label": b.label, "style": b.style} for b in block.buttons.all()] if hasattr(block,
+                                                                                                      "buttons") else [],
+            "videos": [{"video_url": v.video_url} for v in block.videos.all()] if hasattr(block, "videos") else [],
+        })
+
+    return render(request, 'internships/internship_detail.html', {
+        'internship': internship,
+        'blocks': json.dumps(blocks_data, cls=DjangoJSONEncoder),
+    })
